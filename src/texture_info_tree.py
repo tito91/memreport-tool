@@ -28,14 +28,14 @@ class TextureInfoTree:
         for pre, fill, node in RenderTree(self.root):
             print("%s%s: %ikb" % (pre, node.name, node.size_kb))
 
+    @staticmethod
+    def make_sample():
+        info1 = TextureInfo('0x0 (16384 KB, ?), 0x0 (16384 KB), PF_FloatRGBA, TEXTUREGROUP_World, /Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap, NO, 0')
+        info2 = TextureInfo('1480x1486 (8591 KB, ?), 1480x1486 (8591 KB), PF_B8G8R8A8, TEXTUREGROUP_World, /Game/BeeSimulator/UI/Tutorial/VideosAssets/T_tutorialVideoFrame.T_tutorialVideoFrame, NO, 0')
+        info3 = TextureInfo('1920x1080 (8100 KB, ?), 1920x1080 (8100 KB), PF_B8G8R8A8, TEXTUREGROUP_World, /Game/BeeSimulator/UI/LoadingScreen/T_Loadscreen_2.T_Loadscreen_2, NO, 0')
 
-def make_sample():
-    info1 = TextureInfo('0x0 (16384 KB, ?), 0x0 (16384 KB), PF_FloatRGBA, TEXTUREGROUP_World, /Engine/MapTemplates/Sky/DaylightAmbientCubemap.DaylightAmbientCubemap, NO, 0')
-    info2 = TextureInfo('1480x1486 (8591 KB, ?), 1480x1486 (8591 KB), PF_B8G8R8A8, TEXTUREGROUP_World, /Game/BeeSimulator/UI/Tutorial/VideosAssets/T_tutorialVideoFrame.T_tutorialVideoFrame, NO, 0')
-    info3 = TextureInfo('1920x1080 (8100 KB, ?), 1920x1080 (8100 KB), PF_B8G8R8A8, TEXTUREGROUP_World, /Game/BeeSimulator/UI/LoadingScreen/T_Loadscreen_2.T_Loadscreen_2, NO, 0')
-
-    return TextureInfoTree([info1, info2, info3]).root
+        return TextureInfoTree([info1, info2, info3]).root
 
 
 if __name__ == '__main__':
-    make_sample()
+    TextureInfoTree.make_sample()
