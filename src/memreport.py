@@ -7,6 +7,7 @@ class MemReport:
         self.tree = None
         self.size_threshold = size_threshold
         self.file = open(file_path, 'r')
+        self.under_threshold_total_size = 0
         self.parse_file()
 
     def parse_file(self):
@@ -16,8 +17,6 @@ class MemReport:
         all_lines = self.file.readlines()
 
         texture_info_list = []
-
-        under_threshold_total_size = 0
 
         for line_id, line in zip(range(len(all_lines)), all_lines):
             if line.startswith('Listing all textures') and not texture_block_reached:
@@ -33,10 +32,8 @@ class MemReport:
                     if info.size_kb > self.size_threshold:
                         texture_info_list.append(info)
                     else:
-                        under_threshold_total_size += info.size_kb
+                        self.under_threshold_total_size += info.size_kb
                 else:
                     texture_info_list.append(info)
 
         self.tree = TextureInfoTree(texture_info_list)
-
-        print('Total size of files under threshold: {}kb'.format(under_threshold_total_size))

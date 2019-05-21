@@ -11,13 +11,13 @@ class Chart:
 
     figure = None
     subplot = None
-    annotation = None
+    wedge_annotation = None
     chart_data = None
     wedge_series = None
 
     @staticmethod
-    def from_tree(tree):
-        Chart.chart_data = Chart._parse_tree(tree)
+    def from_report(report):
+        Chart.chart_data = Chart._parse_tree(report.tree)
 
         Chart.figure, Chart.subplot = plt.subplots()
 
@@ -34,10 +34,17 @@ class Chart:
             wedges, _ = Chart.subplot.pie(sizes, radius=radius, colors=colors, wedgeprops=dict(width=wedge_width, edgecolor='w'))
             Chart.wedge_series.append(wedges)
 
-        Chart.annotation = Chart.subplot.annotate("", xy=(0, 0), xycoords="figure pixels", xytext=(20, 20), textcoords="offset points",
-                                 bbox=dict(boxstyle="round", fc="w"),
-                                 arrowprops=dict(arrowstyle="->"))
-        Chart.annotation.set_visible(False)
+        Chart.wedge_annotation = Chart.subplot.annotate("", xy=(0, 0), xycoords="figure pixels", xytext=(20, 20), textcoords="offset points",
+                                                        bbox=dict(boxstyle="round", fc="w"),
+                                                        arrowprops=dict(arrowstyle="->"))
+        Chart.wedge_annotation.set_visible(False)
+
+        if report.size_threshold:
+            size_threshold_text = 'Size threshold in use. Total size of files under threshold: {}kb'.format(report.under_threshold_total_size)
+            threshold_annotation = Chart.subplot.annotate(size_threshold_text, xy=(0, 0), xycoords="figure pixels",
+                                                          xytext=(20, 20), textcoords="offset points",
+                                                          bbox=dict(boxstyle="round", fc="w"))
+            threshold_annotation.set_visible(True)
 
         Chart.figure.canvas.mpl_connect("motion_notify_event", Chart._hover)
 
@@ -80,9 +87,9 @@ class Chart:
 
     @staticmethod
     def _update_annotation(pos, description):
-        Chart.annotation.xy = pos
-        Chart.annotation.set_text(description)
-        Chart.annotation.get_bbox_patch().set_alpha(0.4)
+        Chart.wedge_annotation.xy = pos
+        Chart.wedge_annotation.set_text(description)
+        Chart.wedge_annotation.get_bbox_patch().set_alpha(0.4)
 
     @staticmethod
     def _hover(event):
@@ -93,9 +100,9 @@ class Chart:
                     if w.contains_point(pos) and not Chart.chart_data[series_index][wedge_index].is_filler:
                         description = Chart.chart_data[series_index][wedge_index].description
                         Chart._update_annotation(pos, description)
-                        Chart.annotation.set_visible(True)
+                        Chart.wedge_annotation.set_visible(True)
                         Chart.figure.canvas.draw_idle()
                         return
                     else:
-                        Chart.annotation.set_visible(False)
+                        Chart.wedge_annotation.set_visible(False)
             Chart.figure.canvas.draw_idle()
