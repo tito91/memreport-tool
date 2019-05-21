@@ -1,6 +1,7 @@
 import sys
 import getopt
 
+from src.chart import Chart
 from src.memreport import MemReport
 
 help_string = 'Usage: {} -i <inputfile>'.format(__file__)
@@ -24,6 +25,7 @@ if __name__ == '__main__':
     input_file_path = parse_input(sys.argv[1:])
 
     try:
-        memreport = MemReport(input_file_path)
+        mem_report = MemReport(input_file_path, 20)
+        Chart.from_tree(mem_report.tree)
     except FileNotFoundError:
         print('Provided input file not found.')
