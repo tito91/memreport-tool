@@ -25,9 +25,6 @@ class TextureInfoTree:
                 finally:
                     cur_node.size_kb += info.size_kb
 
-        for pre, fill, node in RenderTree(self.root):
-            print("%s%s: %ikb" % (pre, node.name, node.size_kb))
-
     @staticmethod
     def make_simple_sample():
         info1 = TextureInfo('0x0 (16384 KB, ?), 0x0 (16384 KB), PF_FloatRGBA, TEXTUREGROUP_World,          /tex1.tex1, NO, 0')
