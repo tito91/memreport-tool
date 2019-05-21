@@ -1,4 +1,4 @@
-class TexWedgeData:
+class WedgeData:
     def __init__(self, name, size_kb, color, is_filler=False):
         self.name = name
         self.size_kb = size_kb

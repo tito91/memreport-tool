@@ -3,11 +3,7 @@ import matplotlib.pyplot as plt
 from src.memreport import MemReport
 import numpy
 
-from src.tex_wedge_data import TexWedgeData
-
-
-def flatten_one_level(container):
-    return [item for sublist in container for item in sublist]
+from src.wedge_data import WedgeData
 
 
 mem_report = MemReport('src/example.memreport', size_threshold=20)
@@ -27,12 +23,12 @@ while node_list:
     children_flat_list = []
     wedge_info = []
     for node in node_list:
-        wedge_info.extend([TexWedgeData(n.name, n.size_kb, numpy.random.rand(3,)) for n in node.children])
+        wedge_info.extend([WedgeData(n.name, n.size_kb, numpy.random.rand(3,)) for n in node.children])
         children_sizes = [node.size_kb for node in node.children]
 
         filling_space = node.size_kb - sum(children_sizes)
         if filling_space > 0:
-            wedge_info.append(TexWedgeData('filler', filling_space, (0, 0, 0, 0), is_filler=True))
+            wedge_info.append(WedgeData('filler', filling_space, (0, 0, 0, 0), is_filler=True))
 
         if node.children:
             children_flat_list.extend(node.children)
@@ -47,7 +43,7 @@ while node_list:
 
 fig, ax = plt.subplots()
 
-outer_size = 1.5
+outer_size = 1.25
 inner_size = 0.2
 
 axis_count = len(chart_data)
