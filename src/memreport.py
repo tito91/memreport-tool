@@ -3,11 +3,11 @@ from src.texture_info_tree import TextureInfoTree
 
 
 class MemReport:
-    def __init__(self, file_path):
+    def __init__(self, file_path, size_threshold=None):
+        self.tree = None
+        self.size_threshold = size_threshold
         self.file = open(file_path, 'r')
         self.parse_file()
-
-        self.tree = None
 
     def parse_file(self):
         texture_block_reached = False
@@ -26,6 +26,8 @@ class MemReport:
                 break
 
             if texture_block_reached and line_id > texture_block_start_line_id and not line.isspace():
-                texture_info_list.append(TextureInfo(line))
+                info = TextureInfo(line)
+                if self.size_threshold and info.size_kb > self.size_threshold:
+                    texture_info_list.append(info)
 
         self.tree = TextureInfoTree(texture_info_list)
