@@ -1,4 +1,13 @@
 # memreport-tool
 This tool aims to visualize UE4 memreport file content. 
 
-Note: havily work in progress.
+Current status: displaying texture size information in for of nested donut chart.
+
+### Dependencies
+
+Application was created with Python 3.6.
+
+Required packages:
+
+- `anytree`
+- `matplotlib`
