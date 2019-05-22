@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
     try:
         mem_report = MemReport(input_file_path, 20)
-        Chart.from_report(mem_report)
+        chart = Chart(mem_report)
+        chart.show()
     except FileNotFoundError:
         print('Provided input file not found.')

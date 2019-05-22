@@ -6,75 +6,65 @@ import matplotlib.pyplot as plt
 
 
 class Chart:
-    inner_size = 0.2
-    outer_size = 1.25
+    def __init__(self, report):
+        self._inner_size = 0.2
+        self._outer_size = 1.25
 
-    figure = None
-    subplot = None
-    wedge_annotation = None
-    chart_data = None
-    wedge_series = None
-    background = None
-    draw_cid = None
+        self._chart_data = self._parse_tree(report.tree)
 
-    @staticmethod
-    def from_report(report):
-        Chart.chart_data = Chart._parse_tree(report.tree)
+        self._figure, self._subplot = plt.subplots()
 
-        Chart.figure, Chart.subplot = plt.subplots()
+        axis_count = len(self._chart_data)
+        wedge_width = (self._outer_size - self._inner_size) / (axis_count + 1)
 
-        axis_count = len(Chart.chart_data)
-        wedge_width = (Chart.outer_size - Chart.inner_size) / (axis_count + 1)
-
-        Chart.wedge_series = []
+        self._wedge_series = []
 
         for x in range(axis_count):
-            radius = Chart.outer_size - x * wedge_width
-            sizes = [d.size_kb for d in Chart.chart_data[x]]
-            colors = [d.color for d in Chart.chart_data[x]]
+            radius = self._outer_size - x * wedge_width
+            sizes = [d.size_kb for d in self._chart_data[x]]
+            colors = [d.color for d in self._chart_data[x]]
 
-            wedges, _ = Chart.subplot.pie(sizes, radius=radius, colors=colors, wedgeprops=dict(width=wedge_width, edgecolor='w'))
-            Chart.wedge_series.append(wedges)
+            wedges, _ = self._subplot.pie(sizes, radius=radius, colors=colors, wedgeprops=dict(width=wedge_width, edgecolor='w'))
+            self._wedge_series.append(wedges)
 
-        Chart.wedge_annotation = Chart.subplot.annotate("", xy=(0, 0), xycoords="figure pixels", xytext=(20, 20), textcoords="offset points",
+        self._wedge_annotation = self._subplot.annotate("", xy=(0, 0), xycoords="figure pixels", xytext=(20, 20), textcoords="offset points",
                                                         bbox=dict(boxstyle="round", fc="w"),
                                                         arrowprops=dict(arrowstyle="->"))
-        Chart.wedge_annotation.set_visible(False)
+        self._wedge_annotation.set_visible(False)
 
         if report.size_threshold:
             size_threshold_text = 'Size threshold in use. Total size of files under threshold: {}kb'.format(report.under_threshold_total_size)
-            threshold_annotation = Chart.subplot.annotate(size_threshold_text, xy=(0, 0), xycoords="figure pixels",
+            threshold_annotation = self._subplot.annotate(size_threshold_text, xy=(0, 0), xycoords="figure pixels",
                                                           xytext=(20, 20), textcoords="offset points",
                                                           bbox=dict(boxstyle="round", fc="w"))
             threshold_annotation.set_visible(True)
 
-        Chart.background = Chart.figure.canvas.copy_from_bbox(Chart.subplot.bbox)
+        self._background = self._figure.canvas.copy_from_bbox(self._subplot.bbox)
 
-        Chart.figure.canvas.mpl_connect("motion_notify_event", Chart._hover)
+        self._figure.canvas.mpl_connect("motion_notify_event", self._hover)
 
-        Chart.draw_cid = Chart.figure.canvas.mpl_connect('draw_event', Chart.grab_background)
+        self._draw_cid = self._figure.canvas.mpl_connect('draw_event', self._grab_background)
 
-        plt.show()
+        self._background = None
 
-    @staticmethod
-    def grab_background(event=None):
-        Chart.safe_draw()
+        self.plot = plt.show()
 
-        Chart.background = Chart.figure.canvas.copy_from_bbox(Chart.figure.bbox)
-        Chart.blit()
+    def _grab_background(self, event=None):
+        self.safe_draw()
 
-    @staticmethod
-    def blit():
-        Chart.figure.canvas.restore_region(Chart.background)
-        Chart.subplot.draw_artist(Chart.wedge_annotation)
-        Chart.figure.canvas.blit(Chart.figure.bbox)
+        self._background = self._figure.canvas.copy_from_bbox(self._figure.bbox)
+        self._blit()
 
-    @staticmethod
-    def safe_draw():
-        canvas = Chart.figure.canvas
-        canvas.mpl_disconnect(Chart.draw_cid)
+    def _blit(self):
+        self._figure.canvas.restore_region(self._background)
+        self._subplot.draw_artist(self._wedge_annotation)
+        self._figure.canvas.blit(self._figure.bbox)
+
+    def safe_draw(self):
+        canvas = self._figure.canvas
+        canvas.mpl_disconnect(self._draw_cid)
         canvas.draw()
-        Chart.draw_cid = canvas.mpl_connect('draw_event', Chart.grab_background)
+        self._draw_cid = canvas.mpl_connect('draw_event', self._grab_background)
 
     @staticmethod
     def _parse_tree(tree):
@@ -111,24 +101,25 @@ class Chart:
 
         return chart_data
 
-    @staticmethod
-    def _update_annotation(pos, description):
-        Chart.wedge_annotation.xy = pos
-        Chart.wedge_annotation.set_text(description)
-        Chart.wedge_annotation.get_bbox_patch().set_alpha(0.4)
+    def _update_annotation(self, pos, description):
+        self._wedge_annotation.xy = pos
+        self._wedge_annotation.set_text(description)
+        self._wedge_annotation.get_bbox_patch().set_alpha(0.4)
 
-    @staticmethod
-    def _hover(event):
-        if event.inaxes == Chart.subplot:
+    def _hover(self, event):
+        if event.inaxes == self._subplot:
             pos = [event.x, event.y]
-            for series_index, wedges in enumerate(Chart.wedge_series):
+            for series_index, wedges in enumerate(self._wedge_series):
                 for wedge_index, w in enumerate(wedges):
-                    if w.contains_point(pos) and not Chart.chart_data[series_index][wedge_index].is_filler:
-                        description = Chart.chart_data[series_index][wedge_index].description
-                        Chart._update_annotation(pos, description)
-                        Chart.wedge_annotation.set_visible(True)
-                        Chart.blit()
+                    if w.contains_point(pos) and not self._chart_data[series_index][wedge_index].is_filler:
+                        description = self._chart_data[series_index][wedge_index].description
+                        self._update_annotation(pos, description)
+                        self._wedge_annotation.set_visible(True)
+                        self._blit()
                         return
                     else:
-                        Chart.wedge_annotation.set_visible(False)
-            Chart.blit()
+                        self._wedge_annotation.set_visible(False)
+            self._blit()
+
+    def show(self):
+        self.plot.show()
