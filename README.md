@@ -11,3 +11,7 @@ Required packages:
 
 - `anytree`
 - `matplotlib`
+
+### Usage
+Call main.py with parameters:
+- `-i <input_filename>` - obligatory parameter that provides the program with memreport file
