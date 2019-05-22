@@ -14,6 +14,8 @@ class Chart:
     wedge_annotation = None
     chart_data = None
     wedge_series = None
+    background = None
+    draw_cid = None
 
     @staticmethod
     def from_report(report):
@@ -46,9 +48,33 @@ class Chart:
                                                           bbox=dict(boxstyle="round", fc="w"))
             threshold_annotation.set_visible(True)
 
+        Chart.background = Chart.figure.canvas.copy_from_bbox(Chart.subplot.bbox)
+
         Chart.figure.canvas.mpl_connect("motion_notify_event", Chart._hover)
 
+        Chart.draw_cid = Chart.figure.canvas.mpl_connect('draw_event', Chart.grab_background)
+
         plt.show()
+
+    @staticmethod
+    def grab_background(event=None):
+        Chart.safe_draw()
+
+        Chart.background = Chart.figure.canvas.copy_from_bbox(Chart.figure.bbox)
+        Chart.blit()
+
+    @staticmethod
+    def blit():
+        Chart.figure.canvas.restore_region(Chart.background)
+        Chart.subplot.draw_artist(Chart.wedge_annotation)
+        Chart.figure.canvas.blit(Chart.figure.bbox)
+
+    @staticmethod
+    def safe_draw():
+        canvas = Chart.figure.canvas
+        canvas.mpl_disconnect(Chart.draw_cid)
+        canvas.draw()
+        Chart.draw_cid = canvas.mpl_connect('draw_event', Chart.grab_background)
 
     @staticmethod
     def _parse_tree(tree):
@@ -101,8 +127,8 @@ class Chart:
                         description = Chart.chart_data[series_index][wedge_index].description
                         Chart._update_annotation(pos, description)
                         Chart.wedge_annotation.set_visible(True)
-                        Chart.figure.canvas.draw_idle()
+                        Chart.blit()
                         return
                     else:
                         Chart.wedge_annotation.set_visible(False)
-            Chart.figure.canvas.draw_idle()
+            Chart.blit()
