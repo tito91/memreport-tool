@@ -10,7 +10,7 @@ class Chart:
         self._inner_size = 0.2
         self._outer_size = 1.25
 
-        self._chart_data = self._parse_tree(report.tree)
+        self._chart_data = self._parse_from_root(report.tree.root)
 
         self._figure, self._subplot = plt.subplots()
 
@@ -47,9 +47,9 @@ class Chart:
 
         self._background = None
 
-        self.plot = plt.show()
-
     def _grab_background(self, event=None):
+        self._wedge_annotation.set_visible(False)
+
         self.safe_draw()
 
         self._background = self._figure.canvas.copy_from_bbox(self._figure.bbox)
@@ -67,10 +67,10 @@ class Chart:
         self._draw_cid = canvas.mpl_connect('draw_event', self._grab_background)
 
     @staticmethod
-    def _parse_tree(tree):
+    def _parse_from_root(root):
         chart_data = []
 
-        node_list = [tree.root]
+        node_list = [root]
         while node_list:
 
             for n in node_list:
@@ -121,5 +121,6 @@ class Chart:
                         self._wedge_annotation.set_visible(False)
             self._blit()
 
-    def show(self):
-        self.plot.show()
+    @staticmethod
+    def show():
+        plt.show()
