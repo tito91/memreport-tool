@@ -33,7 +33,7 @@ class Chart:
         self._wedge_annotation.set_visible(False)
 
         if report.size_threshold:
-            size_threshold_text = 'Size threshold in use. Total size of files under threshold: {}kb'.format(report.under_threshold_total_size)
+            size_threshold_text = 'Assets under {}kb are hidden. Total size of such files: {}kb'.format(report.size_threshold, report.under_threshold_total_size)
             threshold_annotation = self._subplot.annotate(size_threshold_text, xy=(0, 0), xycoords="figure pixels",
                                                           xytext=(20, 20), textcoords="offset points",
                                                           bbox=dict(boxstyle="round", fc="w"))
