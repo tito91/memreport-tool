@@ -85,12 +85,12 @@ class Chart:
             children_flat_list = []
             wedge_info = []
             for node in node_list:
-                wedge_info.extend([WedgeData(n.name, n.filesize, numpy.random.rand(3, )) for n in node.children])
+                wedge_info.extend([WedgeData(n.name, n.filesize, numpy.random.rand(3, ), n.get_horizontal_desc()) for n in node.children])
                 children_sizes = [node.filesize.bytes for node in node.children]
 
                 filling_space = node.filesize.bytes - sum(children_sizes)
                 if filling_space > 0:
-                    wedge_info.append(WedgeData('filler', FileSize.from_int(filling_space), (0, 0, 0, 0), is_filler=True))
+                    wedge_info.append(WedgeData('filler', FileSize.from_int(filling_space), (0, 0, 0, 0), '', is_filler=True))
 
                 if node.children:
                     children_flat_list.extend(node.children)

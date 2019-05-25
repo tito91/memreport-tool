@@ -21,5 +21,9 @@ class AssetInfoTree:
                 except ChildResolverError:
                     cur_node = TreeNode(chunk, cur_parent)
                     cur_parent = cur_node
+
+                    if chunk == respath.chunks[-1]:
+                        cur_node.horizontal_desc = str(info)
+
                 finally:
                     cur_node.filesize.bytes += info.filesize.bytes

@@ -15,7 +15,7 @@ class TextureInfo:
         self.usage_count = items[7]
 
     def __str__(self):
-        return 'Name: {}, Dimensions: {}x{}, Size: {}, Format: {}, TexGroup: {}, IsStreaming: {}, Usages: {}'.format(
+        return 'Name: {}\nDimensions: {}x{}\nSize: {}\nFormat: {}\nTexGroup: {}\nIsStreaming: {}\nUsages: {}'.format(
             self.respath.chunks[-1], self.dimensions[0], self.dimensions[1],
             str(self.filesize), self.format, self.tex_group, self.is_streaming, self.usage_count)
 
