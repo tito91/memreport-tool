@@ -2,10 +2,11 @@ import sys
 import getopt
 
 from src.chart import Chart
+from src.filesize.filesize import FileSize
 from src.memreport import MemReport
 from src.threshold import Threshold
 
-help_string = 'Usage: {} -i <inputfile> -c <chart type>'.format(__file__)
+help_string = 'Usage: {} -i <inputfile> -c <chart type> -t <size threshold in KB>'.format(__file__)
 obligatory_parameters = ['-i', '-c']
 chart_types = ['textures', 'sounds']
 
@@ -59,7 +60,8 @@ if __name__ == '__main__':
     input_file_path, chart_type, threshold = parse_input(sys.argv[1:])
 
     try:
-        mem_report = MemReport(input_file_path, threshold.value)
+        size_threshold = FileSize.from_int(threshold.value, 'kb') if threshold else None
+        mem_report = MemReport(input_file_path, size_threshold)
         chart = Chart(mem_report)
         chart.show()
     except FileNotFoundError:

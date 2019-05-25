@@ -1,5 +1,6 @@
 import numpy
 
+from src.filesize.filesize import FileSize
 from src.wedge_data import WedgeData
 
 import matplotlib.pyplot as plt
@@ -21,7 +22,7 @@ class Chart:
 
         for x in range(axis_count):
             radius = self._outer_size - x * wedge_width
-            sizes = [d.size_kb for d in self._chart_data[x]]
+            sizes = [d.filesize.bytes for d in self._chart_data[x]]
             colors = [d.color for d in self._chart_data[x]]
 
             wedges, _ = self._subplot.pie(sizes, radius=radius, colors=colors, wedgeprops=dict(width=wedge_width, edgecolor='w'))
@@ -32,8 +33,8 @@ class Chart:
                                                         arrowprops=dict(arrowstyle="->"))
         self._wedge_annotation.set_visible(False)
 
-        if report.size_threshold:
-            size_threshold_text = 'Assets under {}kb are hidden. Total size of such files: {}kb'.format(report.size_threshold, report.under_threshold_total_size)
+        if report.size_threshold.bytes:
+            size_threshold_text = 'Assets under {} are hidden. Total size of such files: {}'.format(report.size_threshold, report.under_threshold_total_size)
             threshold_annotation = self._subplot.annotate(size_threshold_text, xy=(0, 0), xycoords="figure pixels",
                                                           xytext=(20, 20), textcoords="offset points",
                                                           bbox=dict(boxstyle="round", fc="w"))
@@ -82,12 +83,12 @@ class Chart:
             children_flat_list = []
             wedge_info = []
             for node in node_list:
-                wedge_info.extend([WedgeData(n.name, n.size_kb, numpy.random.rand(3, )) for n in node.children])
-                children_sizes = [node.size_kb for node in node.children]
+                wedge_info.extend([WedgeData(n.name, n.filesize, numpy.random.rand(3, )) for n in node.children])
+                children_sizes = [node.filesize.bytes for node in node.children]
 
-                filling_space = node.size_kb - sum(children_sizes)
+                filling_space = node.filesize.bytes - sum(children_sizes)
                 if filling_space > 0:
-                    wedge_info.append(WedgeData('filler', filling_space, (0, 0, 0, 0), is_filler=True))
+                    wedge_info.append(WedgeData('filler', FileSize.from_int(filling_space), (0, 0, 0, 0), is_filler=True))
 
                 if node.children:
                     children_flat_list.extend(node.children)

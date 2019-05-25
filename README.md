@@ -19,3 +19,4 @@ Required packages:
 ### Usage
 Call main.py with parameters:
 - `-i <input_filename>` - obligatory parameter that provides the program with memreport file
+- `-t <size threshold in KB>` - optional parameter which hides items under certain size

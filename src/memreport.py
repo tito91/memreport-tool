@@ -1,3 +1,4 @@
+from src.filesize.filesize import FileSize
 from src.texture_info import TextureInfo
 from src.texture_info_tree import TextureInfoTree
 
@@ -7,7 +8,7 @@ class MemReport:
         self.tree = None
         self.size_threshold = size_threshold
         self.file = open(file_path, 'r')
-        self.under_threshold_total_size = 0
+        self.under_threshold_total_size = FileSize.from_int(0)
         self.parse_file()
 
     def parse_file(self):
@@ -29,10 +30,10 @@ class MemReport:
             if texture_block_reached and line_id > texture_block_start_line_id and not line.isspace():
                 info = TextureInfo(line)
                 if self.size_threshold:
-                    if info.size_kb > self.size_threshold:
+                    if info.filesize.bytes > self.size_threshold.bytes:
                         texture_info_list.append(info)
                     else:
-                        self.under_threshold_total_size += info.size_kb
+                        self.under_threshold_total_size.bytes += info.filesize.bytes
                 else:
                     texture_info_list.append(info)
 

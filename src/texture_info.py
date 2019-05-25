@@ -1,3 +1,4 @@
+from src.filesize.filesize import FileSize
 from src.respath import ResPath
 
 
@@ -6,7 +7,7 @@ class TextureInfo:
         items = text.split(', ')
 
         self.dimensions = items[2].split(' ')[0].split('x')
-        self.size_kb = int(items[2].split(' ')[1][1:])
+        self.filesize = FileSize.from_int(int(items[2].split(' ')[1][1:]), 'kb')
         self.format = items[3]
         self.tex_group = items[4]
         self.respath = ResPath(items[5])
@@ -16,4 +17,4 @@ class TextureInfo:
     def __str__(self):
         return 'Name: {}, Dimensions: {}x{}, Size[kb]: {}, Format: {}, TexGroup: {}, IsStreaming: {}, Usages: {}'.format(
             self.respath.chunks[-1], self.dimensions[0], self.dimensions[1],
-            self.size_kb, self.format, self.tex_group, self.is_streaming, self.usage_count)
+            self.filesize.get_in_unit('kb'), self.format, self.tex_group, self.is_streaming, self.usage_count)
