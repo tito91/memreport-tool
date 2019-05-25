@@ -8,7 +8,6 @@ from src.threshold import Threshold
 
 help_string = 'Usage: {} -i <inputfile> -c <chart type> -t <size threshold in KB>'.format(__file__)
 obligatory_parameters = ['-i', '-c']
-chart_types = ['textures', 'sounds']
 
 
 def parse_input(argv):
@@ -40,8 +39,8 @@ def parse_input(argv):
 
     for opt, arg in opts:
         if opt == '-c':
-            if arg not in chart_types:
-                print('Chart type should be one of: {}'.format(chart_types))
+            if arg not in MemReport.asset_types:
+                print('Chart type should be one of: {}'.format(MemReport.asset_types))
                 sys.exit()
             else:
                 chart = arg
@@ -61,7 +60,7 @@ if __name__ == '__main__':
 
     try:
         size_threshold = FileSize.from_int(threshold.value, 'kb') if threshold else None
-        mem_report = MemReport(input_file_path, size_threshold)
+        mem_report = MemReport(input_file_path, chart_type, size_threshold)
         chart = Chart(mem_report)
         chart.show()
     except FileNotFoundError:

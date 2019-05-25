@@ -49,11 +49,11 @@ class FileSize:
         else:
             size_number, size_unit = size_string, ''
 
-        size = int(size_number)
+        size = float(size_number)
 
         size_bytes = size * FileSize.multipliers_to_byte[size_unit]
 
-        return FileSize(size_bytes)
+        return FileSize(int(size_bytes))
 
     @staticmethod
     def from_int(integer, unit=''):

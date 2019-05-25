@@ -14,6 +14,9 @@ class TestFileSize(TestCase):
         from_kilobytes = FileSize.from_string('1024kb')
         self.assertEqual(from_kilobytes.get_in_unit(''), 1048576)
 
+        from_kilobytes_fraction = FileSize.from_string('1.5kb')
+        self.assertEqual(from_kilobytes_fraction.get_in_unit(''), 1536)
+
     def test_from_int(self):
         from_bytes = FileSize.from_int(1024)
         self.assertEqual(1024, from_bytes.get_in_unit(''))

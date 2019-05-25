@@ -28,6 +28,8 @@ class Chart:
             wedges, _ = self._subplot.pie(sizes, radius=radius, colors=colors, wedgeprops=dict(width=wedge_width, edgecolor='w'))
             self._wedge_series.append(wedges)
 
+        self._wedge_series.reverse()
+
         self._wedge_annotation = self._subplot.annotate("", xy=(0, 0), xycoords="figure pixels", xytext=(20, 20), textcoords="offset points",
                                                         bbox=dict(boxstyle="round", fc="w"),
                                                         arrowprops=dict(arrowstyle="->"))
@@ -112,8 +114,9 @@ class Chart:
             pos = [event.x, event.y]
             for series_index, wedges in enumerate(self._wedge_series):
                 for wedge_index, w in enumerate(wedges):
-                    if w.contains_point(pos) and not self._chart_data[series_index][wedge_index].is_filler:
-                        description = self._chart_data[series_index][wedge_index].description
+                    corresponding_data = self._chart_data[-series_index - 1][wedge_index]
+                    if w.contains_point(pos) and not corresponding_data.is_filler:
+                        description = corresponding_data.description
                         self._update_annotation(pos, description)
                         self._wedge_annotation.set_visible(True)
                         self._blit()
