@@ -1,7 +1,5 @@
-import numpy
 from anytree import findall
 
-from src.filesize.filesize import FileSize
 from src.wedge_data import WedgeData
 
 import matplotlib.pyplot as plt
@@ -15,7 +13,7 @@ class Chart:
         self.report = report
         self.current_plotted_root = None
         self._subplot = None
-
+        self.report = report
         self.root_history = []
 
         NavigationToolbar2.back = self._back_pressed
@@ -65,6 +63,13 @@ class Chart:
                                                           xytext=(20, 20), textcoords="offset points",
                                                           bbox=dict(boxstyle="round", fc="w"))
             threshold_annotation.set_visible(True)
+
+        subdir_path = self.report.tree.build_node_path(root)
+        root_name_annotation_content = 'Current subdirectory: {}'.format(subdir_path)
+        root_name_annotation = self._subplot.annotate(root_name_annotation_content, xy=(0, 40), xycoords="figure pixels",
+                                                      xytext=(20, 20), textcoords="offset points",
+                                                      bbox=dict(boxstyle="round", fc="w"))
+        root_name_annotation.set_visible(subdir_path)
 
         self._background = self._figure.canvas.copy_from_bbox(self._subplot.bbox)
 

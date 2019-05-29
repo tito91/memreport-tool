@@ -1,10 +1,12 @@
-from anytree import Resolver, ChildResolverError
+from anytree import Resolver, ChildResolverError, Walker
 
 from src.tree_node import TreeNode
 
 
 class AssetInfoTree:
     def __init__(self, texture_info_list):
+        self.walker = Walker()
+
         r = Resolver('name')
 
         id = 0
@@ -34,3 +36,7 @@ class AssetInfoTree:
 
                 finally:
                     cur_node.filesize.bytes += info.filesize.bytes
+
+    def build_node_path(self, node):
+        path = self.walker.walk(self.root, node)
+        return '/'.join([tn.name for tn in path[2]])
