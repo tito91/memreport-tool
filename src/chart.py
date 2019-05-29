@@ -118,12 +118,12 @@ class Chart:
             children_flat_list = []
             wedge_info = []
             for node in node_list:
-                wedge_info.extend([WedgeData(n.name, n.filesize, numpy.random.rand(3, ), n.get_horizontal_desc(), n.id) for n in node.children])
+                wedge_info.extend([WedgeData.for_node(n) for n in node.children])
                 children_sizes = [node.filesize.bytes for node in node.children]
 
                 filling_space = node.filesize.bytes - sum(children_sizes)
                 if filling_space > 0:
-                    wedge_info.append(WedgeData('filler', FileSize.from_int(filling_space), (0, 0, 0, 0), '', is_filler=True))
+                    wedge_info.append(WedgeData.for_filler(filling_space))
 
                 if node.children:
                     children_flat_list.extend(node.children)
@@ -149,7 +149,7 @@ class Chart:
                 for wedge_index, w in enumerate(wedges):
                     corresponding_data = self._chart_data[-series_index - 1][wedge_index]
                     if w.contains_point(pos) and not corresponding_data.is_filler:
-                        description = corresponding_data.description
+                        description = corresponding_data.annotation_text
                         self._update_annotation(pos, description)
                         self._wedge_annotation.set_visible(True)
                         self._blit()
@@ -164,7 +164,7 @@ class Chart:
             for series_index, wedges in enumerate(self._wedge_series):
                 for wedge_index, w in enumerate(wedges):
                     corresponding_data = self._chart_data[-series_index - 1][wedge_index]
-                    if w.contains_point(pos) and not corresponding_data.is_filler:
+                    if w.contains_point(pos) and corresponding_data.can_be_root:
                         node = findall(self.current_plotted_root, filter_=lambda n: n.id == corresponding_data.node_id)
 
                         if len(node) != 1:
