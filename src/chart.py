@@ -80,6 +80,8 @@ class Chart:
 
         self._background = None
 
+        plt.title(self.report.asset_type_display_name)
+
         plt.draw()
 
     def _change_root(self, new_root, record_history):

@@ -15,6 +15,11 @@ class MemReport:
         self.under_threshold_total_size = FileSize.from_int(0)
         self.parse_file(asset_type)
 
+        self.asset_type_display_name = asset_type
+        name_char_list = list(asset_type)
+        name_char_list[0] = name_char_list[0].upper()
+        self.asset_type_display_name = "".join(name_char_list)
+
     def parse_file(self, asset_type):
         texture_block_reached = False
         content_found = False
