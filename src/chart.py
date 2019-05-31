@@ -109,8 +109,7 @@ class Chart:
         canvas.draw()
         self._draw_cid = canvas.mpl_connect('draw_event', self._grab_background)
 
-    @staticmethod
-    def _parse_from_root(root):
+    def _parse_from_root(self, root):
         chart_data = []
 
         node_list = [root]
@@ -125,7 +124,7 @@ class Chart:
             children_flat_list = []
             wedge_info = []
             for node in node_list:
-                wedge_info.extend([WedgeData.for_node(n) for n in node.children])
+                wedge_info.extend(self._create_wedge_data_for_node(node))
                 children_sizes = [node.filesize.bytes for node in node.children]
 
                 filling_space = node.filesize.bytes - sum(children_sizes)
@@ -144,6 +143,24 @@ class Chart:
 
         return chart_data
 
+    def _create_wedge_data_for_node(self, node):
+        result = []
+
+        if node.filesize.bytes < self.report.size_threshold.bytes:
+            return result
+
+        to_merge = []
+
+        for child in node.children:
+            if child.filesize.bytes < self.report.size_threshold.bytes:
+                to_merge.append(child)
+            else:
+                result.append(WedgeData.for_node(child))
+
+        result.append(WedgeData.for_nodes_to_merge(to_merge))
+
+        return result
+
     def _update_annotation(self, pos, description):
         self._wedge_annotation.xy = pos
         self._wedge_annotation.set_text(description)
@@ -155,7 +172,7 @@ class Chart:
             for series_index, wedges in enumerate(self._wedge_series):
                 for wedge_index, w in enumerate(wedges):
                     corresponding_data = self._chart_data[-series_index - 1][wedge_index]
-                    if w.contains_point(pos) and not corresponding_data.is_filler:
+                    if not corresponding_data.is_filler and w.contains_point(pos):
                         description = corresponding_data.annotation_text
                         self._update_annotation(pos, description)
                         self._wedge_annotation.set_visible(True)

@@ -42,12 +42,6 @@ class MemReport:
             if texture_block_reached and line_id > texture_block_start_line_id and not line.isspace():
                 info = block.info_class(line)
                 content_found = True
-                if self.size_threshold:
-                    if info.filesize.bytes > self.size_threshold.bytes:
-                        texture_info_list.append(info)
-                    else:
-                        self.under_threshold_total_size.bytes += info.filesize.bytes
-                else:
-                    texture_info_list.append(info)
+                texture_info_list.append(info)
 
         self.tree = AssetInfoTree(texture_info_list)
