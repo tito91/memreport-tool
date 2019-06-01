@@ -20,4 +20,4 @@ Required packages:
 Call `main.py` with parameters:
 - `-i <input_filename>` - obligatory: memreport file 
 - `-c <chart_type>` - obligatory: chart type, one of the following: [`textures`, `sounds`]
-- `-t <size threshold in KB>` - optional: hides items under certain size
+- `-t <size threshold in KB>` - optional: merges items under certain size
