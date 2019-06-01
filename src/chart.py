@@ -5,6 +5,7 @@ from src.wedge_data import WedgeData
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import NavigationToolbar2
 
+import time
 
 class Chart:
     def __init__(self, report):
@@ -15,6 +16,8 @@ class Chart:
         self._subplot = None
         self.report = report
         self.root_history = []
+
+        self.latest_hovered_wedge = {'wedge': None, 'data': None}
 
         NavigationToolbar2.back = self._back_pressed
 
@@ -98,6 +101,13 @@ class Chart:
         self._background = self._figure.canvas.copy_from_bbox(self._figure.bbox)
         self._blit()
 
+        self._clear_cached_hovered_wedge()
+
+    def _clear_cached_hovered_wedge(self):
+        self.latest_hovered_wedge['wedge'] = None
+        self.latest_hovered_wedge['data'] = None
+        self.latest_hovered_wedge['use_cached'] = False
+
     def _blit(self):
         self._figure.canvas.restore_region(self._background)
         self._subplot.draw_artist(self._wedge_annotation)
@@ -173,26 +183,44 @@ class Chart:
 
         return result
 
-    def _update_annotation(self, pos, description):
+    def _hover(self, event):
+        if event.inaxes == self._subplot:
+            pos = [event.x, event.y]
+
+            if self.has_cached_hovered_wedge() and self.latest_hovered_wedge['use_cached'] and self.latest_hovered_wedge['wedge'].contains_point(pos):
+                self._update_wedge_annotation(pos)
+            else:
+                for series_index, wedges in enumerate(self._wedge_series):
+                    for wedge_index, w in enumerate(wedges):
+                        corresponding_data = self._chart_data[-series_index - 1][wedge_index]
+                        if not corresponding_data.is_filler and w.contains_point(pos):
+
+                            node = findall(self.current_plotted_root,
+                                           filter_=lambda n: n.id == corresponding_data.node_id)
+
+                            self.latest_hovered_wedge['wedge'] = w
+                            self.latest_hovered_wedge['data'] = corresponding_data
+                            self.latest_hovered_wedge['use_cached'] = len(node[0].parent.children) > 1
+
+                            self._update_wedge_annotation(pos)
+                            return
+                        else:
+                            self._wedge_annotation.set_visible(False)
+                self._blit()
+
+    def _update_wedge_annotation(self, pos):
+        description = self.latest_hovered_wedge['data'].annotation_text
+        self._update_wedge_annotation_content(pos, description)
+        self._wedge_annotation.set_visible(True)
+        self._blit()
+
+    def _update_wedge_annotation_content(self, pos, description):
         self._wedge_annotation.xy = pos
         self._wedge_annotation.set_text(description)
         self._wedge_annotation.get_bbox_patch().set_alpha(0.4)
 
-    def _hover(self, event):
-        if event.inaxes == self._subplot:
-            pos = [event.x, event.y]
-            for series_index, wedges in enumerate(self._wedge_series):
-                for wedge_index, w in enumerate(wedges):
-                    corresponding_data = self._chart_data[-series_index - 1][wedge_index]
-                    if not corresponding_data.is_filler and w.contains_point(pos):
-                        description = corresponding_data.annotation_text
-                        self._update_annotation(pos, description)
-                        self._wedge_annotation.set_visible(True)
-                        self._blit()
-                        return
-                    else:
-                        self._wedge_annotation.set_visible(False)
-            self._blit()
+    def has_cached_hovered_wedge(self):
+        return self.latest_hovered_wedge['wedge']
 
     def _button_pressed(self, event):
         if event.inaxes == self._subplot:
