@@ -60,7 +60,13 @@ if __name__ == '__main__':
 
     try:
         size_threshold = FileSize.from_int(threshold.value, 'kb') if threshold else None
-        mem_report = MemReport(input_file_path, chart_type, size_threshold)
+
+        try:
+            mem_report = MemReport(input_file_path, chart_type, size_threshold)
+        except Exception as e:
+            print('Could not parse the report file.')
+            sys.exit()
+
         chart = Chart(mem_report)
         chart.show()
     except FileNotFoundError:
