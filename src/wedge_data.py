@@ -24,8 +24,6 @@ class WedgeData:
         filesize = tree_node.filesize
         color = numpy.random.rand(3, )
 
-        print(color)
-
         annotation_text = tree_node.get_horizontal_desc()
         node_id = tree_node.id
 
@@ -38,4 +36,4 @@ class WedgeData:
     @staticmethod
     def for_nodes_to_merge(nodes_to_merge):
         size = FileSize.from_int(sum([x.filesize.bytes for x in nodes_to_merge]))
-        return WedgeData('merged', size, WedgeData.merged_color, 'Merged files below threshold', False)
+        return WedgeData('merged', size, WedgeData.merged_color, 'Files below size threshold: {}'.format(str(size)), False)

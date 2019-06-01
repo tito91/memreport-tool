@@ -121,6 +121,8 @@ class Chart:
             else:
                 break
 
+            merge_filler_size_bytes = 0
+
             children_flat_list = []
             wedge_info = []
             for node in node_list:
@@ -129,7 +131,13 @@ class Chart:
 
                 filling_space = node.filesize.bytes - sum(children_sizes)
                 if filling_space > 0:
-                    wedge_info.append(WedgeData.for_filler(filling_space))
+                    if node.filesize.bytes >= self.report.size_threshold.bytes:
+                        wedge_info.append(WedgeData.for_filler(filling_space))
+                    else:
+                        if not node.children:
+                            wedge_info.append(WedgeData.for_filler(filling_space))
+                        else:
+                            merge_filler_size_bytes += node.filesize.bytes
 
                 if node.children:
                     children_flat_list.extend(node.children)
@@ -137,6 +145,9 @@ class Chart:
                     children_flat_list.append(node)
 
             node_list = children_flat_list
+
+            if merge_filler_size_bytes:
+                wedge_info.append(WedgeData.for_filler(merge_filler_size_bytes))
 
             if node_list:
                 chart_data.append(wedge_info)
@@ -146,18 +157,19 @@ class Chart:
     def _create_wedge_data_for_node(self, node):
         result = []
 
-        if node.filesize.bytes < self.report.size_threshold.bytes:
+        if node.filesize.bytes < self.report.size_threshold.bytes and not node.children:
             return result
 
         to_merge = []
 
         for child in node.children:
-            if child.filesize.bytes < self.report.size_threshold.bytes:
+            if child.filesize.bytes < self.report.size_threshold.bytes and not child.children:
                 to_merge.append(child)
             else:
                 result.append(WedgeData.for_node(child))
 
-        result.append(WedgeData.for_nodes_to_merge(to_merge))
+        if to_merge:
+            result.append(WedgeData.for_nodes_to_merge(to_merge))
 
         return result
 
